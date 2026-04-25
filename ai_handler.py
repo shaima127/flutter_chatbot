@@ -1,8 +1,7 @@
 import os
 from dotenv import load_dotenv
 from groq import Groq
-from langchain_community.vectorstores import Chroma
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.retrievers import BM25Retriever
 from langchain_text_splitters import CharacterTextSplitter
 from langchain.docstore.document import Document
 from langchain_community.document_loaders import PyPDFDirectoryLoader
@@ -12,8 +11,7 @@ load_dotenv()
 class AIHandler:
     def __init__(self):
         self.client = Groq(api_key=os.getenv("GROQ_API_KEY"))
-        self.embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-        self.vector_db = None
+        self.retriever = None
         self._init_rag()
 
     def _init_rag(self):
@@ -46,12 +44,13 @@ class AIHandler:
         text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
         split_docs = text_splitter.split_documents(docs)
         
-        # Initialize Chroma in-memory for this example
-        self.vector_db = Chroma.from_documents(split_docs, self.embeddings)
+        # Initialize lightweight BM25 Retriever instead of Chroma to save Memory (RAM)
+        self.retriever = BM25Retriever.from_documents(split_docs)
+        self.retriever.k = 2
 
     def get_response(self, user_query, context=""):
-        # RAG Search
-        search_results = self.vector_db.similarity_search(user_query, k=2)
+        # BM25 RAG Search
+        search_results = self.retriever.invoke(user_query) if self.retriever else []
         rag_context = "\n".join([doc.page_content for doc in search_results])
         
         system_prompt = f"""
