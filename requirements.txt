@@ -6,9 +6,8 @@ langchain
 langchain-community
 langchain-groq
 python-dotenv
-chromadb
-sentence-transformers
 gunicorn
 psycopg2-binary
 pypdf
 langchain-text-splitters
+rank_bm25
