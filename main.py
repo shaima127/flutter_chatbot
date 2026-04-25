@@ -172,4 +172,4 @@ def seed():
     return "تم تحديث المنهج: جميع الدروس الآن مخصصة لـ Flutter فقط وبنجاح!"
     
 if __name__ == "__main__":
-app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
+  app.run(host="0.0.0.0", port=int(os.getenv("PORT", 5000)))
